@@ -1,0 +1,92 @@
+name: m365-knowledge-worker
+version: "0.1.0"
+type: runtime
+description: "M365 Knowledge Worker simulation workload"
+
+# Python package info
+package:
+  name: haymaker-m365-workloads
+  entrypoint: haymaker_m365_workloads:M365KnowledgeWorkerWorkload
+
+# Target requirements (what this workload operates on)
+targets:
+  - type: m365_tenant
+    required_permissions:
+      - User.ReadWrite.All
+      - Group.ReadWrite.All
+      - Mail.Send
+      - Mail.ReadWrite
+      - ChannelMessage.Send
+      - Files.ReadWrite.All
+      - Calendars.ReadWrite
+    description: "M365 tenant for knowledge worker simulation"
+
+# Required credentials
+credentials:
+  - name: KW_TENANT_ID
+    description: "Azure AD tenant ID"
+    required: true
+  - name: KW_APP_ID
+    description: "Application (client) ID with Graph permissions"
+    required: true
+  - name: KW_CLIENT_SECRET
+    description: "Client secret for application"
+    required: true
+  - name: ANTHROPIC_API_KEY
+    description: "Anthropic API key for AI email generation"
+    required: false
+
+# Configuration schema
+config_schema:
+  workers:
+    type: integer
+    default: 25
+    min: 1
+    max: 300
+    description: "Number of knowledge workers to simulate"
+  department:
+    type: string
+    default: "operations"
+    enum: ["operations", "engineering", "sales", "hr", "finance", "executive"]
+    description: "Department type for activity patterns"
+  duration_hours:
+    type: integer
+    default: null
+    description: "Duration in hours (null = indefinite)"
+  enable_ai_generation:
+    type: boolean
+    default: false
+    description: "Use AI to generate email content"
+
+# Activity patterns by department
+activity_patterns:
+  operations:
+    email_per_hour: 6
+    teams_messages_per_hour: 8
+    documents_per_day: 4
+    meetings_per_day: 4
+  engineering:
+    email_per_hour: 4
+    teams_messages_per_hour: 15
+    documents_per_day: 6
+    meetings_per_day: 3
+  sales:
+    email_per_hour: 12
+    teams_messages_per_hour: 10
+    documents_per_day: 3
+    meetings_per_day: 8
+  hr:
+    email_per_hour: 10
+    teams_messages_per_hour: 8
+    documents_per_day: 5
+    meetings_per_day: 5
+  finance:
+    email_per_hour: 6
+    teams_messages_per_hour: 5
+    documents_per_day: 8
+    meetings_per_day: 4
+  executive:
+    email_per_hour: 8
+    teams_messages_per_hour: 5
+    documents_per_day: 2
+    meetings_per_day: 10
