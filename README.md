@@ -17,7 +17,7 @@ Workers are organized into departments with distinct activity patterns that mirr
 
 ```bash
 # Install via haymaker CLI
-haymaker workload install https://github.com/org/haymaker-m365-workloads
+haymaker workload install https://github.com/rysweet/haymaker-m365-workloads
 
 # Or via pip
 pip install haymaker-m365-workloads
@@ -130,7 +130,7 @@ haymaker logs <deployment-id>
 
 ```bash
 # Clone
-git clone https://github.com/org/haymaker-m365-workloads
+git clone https://github.com/rysweet/haymaker-m365-workloads
 cd haymaker-m365-workloads
 
 # Install in dev mode
