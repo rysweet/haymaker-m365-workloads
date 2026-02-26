@@ -9,11 +9,6 @@ authors = [
     { name = "Haymaker Team" }
 ]
 keywords = ["m365", "microsoft365", "haymaker", "workload", "knowledge-worker"]
-
-[project.urls]
-Homepage = "https://github.com/rysweet/haymaker-m365-workloads"
-Repository = "https://github.com/rysweet/haymaker-m365-workloads"
-Issues = "https://github.com/rysweet/haymaker-m365-workloads/issues"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -22,7 +17,6 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-
 dependencies = [
     "agent-haymaker>=0.1.0",
     "azure-identity>=1.14.0",
@@ -40,6 +34,11 @@ dev = [
 ai = [
     "agent-haymaker[llm]>=0.1.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/rysweet/haymaker-m365-workloads"
+Repository = "https://github.com/rysweet/haymaker-m365-workloads"
+Issues = "https://github.com/rysweet/haymaker-m365-workloads/issues"
 
 # Register workload with agent-haymaker
 [project.entry-points."agent_haymaker.workloads"]
