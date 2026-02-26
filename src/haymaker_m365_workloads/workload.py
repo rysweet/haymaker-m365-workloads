@@ -4,6 +4,7 @@ Simulates realistic Microsoft 365 knowledge workers performing
 everyday activities like email, Teams, calendar, and documents.
 """
 
+import logging
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -19,6 +20,9 @@ from agent_haymaker.workloads.models import CleanupReport, DeploymentStatus
 from .models.worker import WorkerConfig, WorkerIdentity, Department
 from .identity.user_manager import EntraUserManager
 from .operations.orchestrator import ActivityOrchestrator
+from .content.email_generator import EmailGenerator
+
+logger = logging.getLogger(__name__)
 
 
 class M365KnowledgeWorkerWorkload(WorkloadBase):
@@ -58,6 +62,7 @@ class M365KnowledgeWorkerWorkload(WorkloadBase):
         department = config.workload_config.get("department", "operations")
         duration_hours = config.duration_hours
         enable_ai = config.workload_config.get("enable_ai_generation", False)
+        email_directive = config.workload_config.get("email_directive")
 
         # Generate deployment ID
         deployment_id = f"m365-{uuid.uuid4().hex[:8]}"
@@ -90,6 +95,9 @@ class M365KnowledgeWorkerWorkload(WorkloadBase):
         )
         self._user_managers[deployment_id] = user_manager
 
+        # Create email generator (with optional LLM client)
+        email_generator = self._create_email_generator(enable_ai, email_directive)
+
         # Create workers
         state.phase = "creating_workers"
         await self.save_state(state)
@@ -110,6 +118,7 @@ class M365KnowledgeWorkerWorkload(WorkloadBase):
             enable_ai=enable_ai,
             duration_hours=duration_hours,
             on_activity=lambda activity: self._on_activity(deployment_id, activity),
+            email_generator=email_generator,
         )
         self._orchestrators[deployment_id] = orchestrator
 
@@ -233,6 +242,14 @@ class M365KnowledgeWorkerWorkload(WorkloadBase):
         if department not in valid_departments:
             errors.append(f"'department' must be one of: {', '.join(valid_departments)}")
 
+        enable_ai = config.workload_config.get("enable_ai_generation", False)
+        if not isinstance(enable_ai, bool):
+            errors.append("'enable_ai_generation' must be a boolean")
+
+        email_directive = config.workload_config.get("email_directive")
+        if email_directive is not None and not isinstance(email_directive, str):
+            errors.append("'email_directive' must be a string")
+
         return errors
 
     async def list_deployments(self) -> list[DeploymentState]:
@@ -247,6 +264,38 @@ class M365KnowledgeWorkerWorkload(WorkloadBase):
                     states.append(p)
 
         return states
+
+    def _create_email_generator(
+        self, enable_ai: bool, directive: str | None
+    ) -> EmailGenerator:
+        """Create an EmailGenerator, optionally with an LLM client.
+
+        Args:
+            enable_ai: Whether to attempt LLM-backed generation
+            directive: Optional custom directive for email content
+
+        Returns:
+            EmailGenerator instance (always created; LLM client attached only
+            when enable_ai is True and dependencies are available)
+        """
+        llm_client = None
+
+        if enable_ai:
+            try:
+                from agent_haymaker.llm import LLMConfig, create_llm_client
+
+                llm_config = LLMConfig()
+                llm_client = create_llm_client(llm_config)
+                logger.info("AI email generation enabled with LLM client")
+            except ImportError:
+                logger.warning(
+                    "agent_haymaker[llm] not installed; "
+                    "AI email generation will use template fallback"
+                )
+            except Exception as e:
+                logger.warning(f"Failed to create LLM client: {e}; using template fallback")
+
+        return EmailGenerator(llm_client=llm_client, directive=directive)
 
     async def _create_workers(
         self,

@@ -4,12 +4,17 @@ Coordinates continuous M365 activity generation across all workers,
 respecting activity patterns and work hours.
 """
 
+from __future__ import annotations
+
 import asyncio
 from datetime import datetime
 from pathlib import Path
-from typing import AsyncIterator, Callable, Any
+from typing import AsyncIterator, Callable, Any, TYPE_CHECKING
 
 from ..models.worker import WorkerIdentity
+
+if TYPE_CHECKING:
+    from ..content.email_generator import EmailGenerator
 
 
 class ActivityOrchestrator:
@@ -31,6 +36,7 @@ class ActivityOrchestrator:
         enable_ai: bool = False,
         duration_hours: int | None = None,
         on_activity: Callable[[dict], None] | None = None,
+        email_generator: EmailGenerator | None = None,
     ) -> None:
         """Initialize the orchestrator.
 
@@ -40,12 +46,14 @@ class ActivityOrchestrator:
             enable_ai: Whether to use AI for content generation
             duration_hours: Duration in hours (None = indefinite)
             on_activity: Callback when an activity is performed
+            email_generator: Optional EmailGenerator for AI-powered content
         """
         self.deployment_id = deployment_id
         self.workers = workers
         self.enable_ai = enable_ai
         self.duration_hours = duration_hours
         self._on_activity = on_activity
+        self._email_generator = email_generator
 
         self._running = False
         self._task: asyncio.Task | None = None
@@ -171,16 +179,38 @@ class ActivityOrchestrator:
             await self._create_document(worker)
 
     async def _send_email(self, worker: WorkerIdentity) -> None:
-        """Send an email as the worker."""
-        # In real implementation, use Graph API to send email
+        """Send an email as the worker.
+
+        Uses EmailGenerator for content if available, otherwise logs
+        a generic email activity.
+        """
+        subject = None
+        body = None
+
+        if self._email_generator:
+            try:
+                generated = await self._email_generator.generate(
+                    department=worker.department.value,
+                    worker_name=worker.display_name,
+                )
+                subject = generated.subject
+                body = generated.body
+            except Exception as e:
+                self._log(f"Email generation failed for {worker.display_name}: {e}", "WARNING")
+
+        # In real implementation, use Graph API to send email with subject/body
         activity = {
             "type": "email",
             "worker_id": worker.worker_id,
             "timestamp": datetime.utcnow().isoformat(),
+            "subject": subject,
         }
 
         self._activity_count += 1
-        self._log(f"Email sent by {worker.display_name}")
+        if subject:
+            self._log(f"Email sent by {worker.display_name}: \"{subject}\"")
+        else:
+            self._log(f"Email sent by {worker.display_name}")
 
         if self._on_activity:
             self._on_activity(activity)

@@ -104,6 +104,48 @@ Each department has distinct activity patterns:
 | `department` | string | operations | Department type |
 | `duration_hours` | int | null | Duration (null = indefinite) |
 | `enable_ai_generation` | bool | false | Use AI for email content |
+| `email_directive` | string | null | Custom directive for AI email generation |
+
+## AI Email Generation
+
+When `enable_ai_generation` is set to `true`, email content is generated using an LLM provider from `agent-haymaker[llm]`. This produces realistic, department-aware emails that vary across workers and cycles.
+
+### How it works
+
+1. The `EmailGenerator` checks for an available LLM client
+2. If an LLM is available, it builds a department-specific prompt and generates unique email content
+3. If no LLM is available (missing dependency or API key), it falls back to built-in templates
+4. Fallback templates rotate through department-specific email scenarios
+
+### Enabling AI generation
+
+```bash
+# Install with AI dependencies
+pip install "haymaker-m365-workloads[ai]"
+
+# Set API key
+export ANTHROPIC_API_KEY="your-key"
+
+# Deploy with AI generation
+haymaker deploy m365-knowledge-worker \
+  --config workers=10 \
+  --config department=sales \
+  --config enable_ai_generation=true
+
+# With a custom directive
+haymaker deploy m365-knowledge-worker \
+  --config workers=10 \
+  --config department=engineering \
+  --config enable_ai_generation=true \
+  --config email_directive="Write emails about migrating to Kubernetes"
+```
+
+### Example deployment configs
+
+See the `examples/` directory for sample YAML deployment configurations:
+
+- `examples/basic-deployment.yaml` - Standard deployment without AI
+- `examples/ai-email-deployment.yaml` - AI-enabled deployment with custom directive
 
 ## Security
 
