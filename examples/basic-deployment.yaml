@@ -1,0 +1,4 @@
+workload_name: m365-knowledge-worker
+workers: 25
+department: engineering
+duration_hours: 8

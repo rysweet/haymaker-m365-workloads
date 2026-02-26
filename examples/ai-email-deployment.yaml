@@ -1,0 +1,6 @@
+workload_name: m365-knowledge-worker
+workers: 10
+department: sales
+duration_hours: 4
+enable_ai_generation: true
+email_directive: "Write emails about Q4 sales targets and client relationships"

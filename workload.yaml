@@ -56,7 +56,11 @@ config_schema:
   enable_ai_generation:
     type: boolean
     default: false
-    description: "Use AI to generate email content"
+    description: "Enable AI-powered email content generation"
+  email_directive:
+    type: string
+    default: null
+    description: "Custom directive for AI email generation"
 
 # Activity patterns by department
 activity_patterns:

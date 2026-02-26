@@ -66,33 +66,18 @@ class EntraUserManager:
         Returns:
             Created WorkerIdentity
         """
-        client = await self._get_graph_client()
+        await self._get_graph_client()
 
         # Generate UPN
         worker_name = f"haymaker-{config.deployment_id}-{config.worker_number}"
-        domain = config.domain or "contoso.onmicrosoft.com"  # Would get from tenant
+        domain = config.domain or "contoso.onmicrosoft.com"
         upn = f"{worker_name}@{domain}"
 
-        # Generate password
-        password = self._generate_password()
+        # Generate password for Entra user creation
+        self._generate_password()
 
-        # Create user in Entra ID
-        # In real implementation:
-        # user = User(
-        #     account_enabled=True,
-        #     display_name=f"Haymaker Worker {config.worker_number}",
-        #     mail_nickname=worker_name,
-        #     user_principal_name=upn,
-        #     password_profile=PasswordProfile(
-        #         force_change_password_next_sign_in=False,
-        #         password=password,
-        #     ),
-        #     department=config.department.value,
-        # )
-        # result = await client.users.post(user)
-        # entra_object_id = result.id
-
-        # Placeholder
+        # TODO(graph-api): Replace with real Graph API user creation
+        # once msgraph-sdk integration is complete
         entra_object_id = f"entra-{worker_name}"
 
         # Create worker identity
@@ -118,11 +103,9 @@ class EntraUserManager:
         if not worker:
             return False
 
-        client = await self._get_graph_client()
+        await self._get_graph_client()
 
-        # Delete from Entra ID
-        # In real implementation:
-        # await client.users.by_user_id(worker.entra_object_id).delete()
+        # TODO(graph-api): Replace with real Graph API user deletion
 
         del self._workers[worker_id]
         return True

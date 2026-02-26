@@ -102,7 +102,5 @@ class WorkerIdentity(BaseModel):
             department=config.department,
             entra_object_id=entra_object_id,
             deployment_id=config.deployment_id,
-            activity_pattern=DEPARTMENT_PATTERNS.get(
-                config.department, ActivityPattern()
-            ),
+            activity_pattern=DEPARTMENT_PATTERNS.get(config.department, ActivityPattern()),
         )
