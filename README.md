@@ -203,6 +203,10 @@ M365KnowledgeWorkerWorkload
     └── ActivityPattern
 ```
 
+## Documentation
+
+- [AI Email Generation Guide](docs/ai-email-generation.md) - LLM-powered email content, department prompts, custom directives, fallback behavior
+
 ## License
 
 MIT
