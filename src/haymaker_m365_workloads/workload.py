@@ -141,6 +141,7 @@ class M365KnowledgeWorkerWorkload(WorkloadBase):
 
         if not state:
             from agent_haymaker.workloads.base import DeploymentNotFoundError
+
             raise DeploymentNotFoundError(f"Deployment {deployment_id} not found")
 
         # Update activity count from orchestrator
@@ -213,7 +214,7 @@ class M365KnowledgeWorkerWorkload(WorkloadBase):
         self, deployment_id: str, follow: bool = False, lines: int = 100
     ) -> AsyncIterator[str]:
         """Stream logs for a deployment."""
-        state = await self.get_status(deployment_id)
+        await self.get_status(deployment_id)  # Validates deployment exists
         orchestrator = self._orchestrators.get(deployment_id)
 
         if orchestrator:
@@ -265,9 +266,7 @@ class M365KnowledgeWorkerWorkload(WorkloadBase):
 
         return states
 
-    def _create_email_generator(
-        self, enable_ai: bool, directive: str | None
-    ) -> EmailGenerator:
+    def _create_email_generator(self, enable_ai: bool, directive: str | None) -> EmailGenerator:
         """Create an EmailGenerator, optionally with an LLM client.
 
         Args:
@@ -318,7 +317,7 @@ class M365KnowledgeWorkerWorkload(WorkloadBase):
                 worker = await user_manager.create_worker(worker_config)
                 workers.append(worker)
             except Exception as e:
-                self.log(f"Failed to create worker {i+1}: {e}", level="ERROR")
+                self.log(f"Failed to create worker {i + 1}: {e}", level="ERROR")
 
         return workers
 

@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class GeneratedEmail:
     """Generated email content."""
+
     subject: str
     body: str
 
@@ -90,7 +91,7 @@ class EmailGenerator:
             # Remove common prefixes
             for prefix in ["Subject:", "subject:", "RE:", "Re:"]:
                 if subject.startswith(prefix):
-                    subject = subject[len(prefix):].strip()
+                    subject = subject[len(prefix) :].strip()
             body = lines[1].strip()
         else:
             subject = f"Update from {worker_name}"
@@ -105,18 +106,36 @@ class EmailGenerator:
 
         templates = {
             "engineering": [
-                ("Sprint Update", f"Hi team,\n\nJust a quick update on the current sprint. We're on track with the planned deliverables.\n\nBest,\n{worker_name}"),
-                ("Code Review Request", f"Hi,\n\nCould you take a look at my latest PR when you get a chance? It addresses the performance issue we discussed.\n\nThanks,\n{worker_name}"),
+                (
+                    "Sprint Update",
+                    f"Hi team,\n\nJust a quick update on the current sprint. We're on track with the planned deliverables.\n\nBest,\n{worker_name}",
+                ),
+                (
+                    "Code Review Request",
+                    f"Hi,\n\nCould you take a look at my latest PR when you get a chance? It addresses the performance issue we discussed.\n\nThanks,\n{worker_name}",
+                ),
             ],
             "sales": [
-                ("Client Follow-up", f"Hi team,\n\nFollowing up on today's client call. They're interested in moving forward with the proposal.\n\nBest,\n{worker_name}"),
-                ("Pipeline Update", f"Hi,\n\nQuick update on the Q4 pipeline - we're tracking well against targets.\n\nRegards,\n{worker_name}"),
+                (
+                    "Client Follow-up",
+                    f"Hi team,\n\nFollowing up on today's client call. They're interested in moving forward with the proposal.\n\nBest,\n{worker_name}",
+                ),
+                (
+                    "Pipeline Update",
+                    f"Hi,\n\nQuick update on the Q4 pipeline - we're tracking well against targets.\n\nRegards,\n{worker_name}",
+                ),
             ],
         }
 
-        dept_templates = templates.get(department.lower(), [
-            ("Work Update", f"Hi,\n\nSharing a quick update on current priorities.\n\nBest,\n{worker_name}"),
-        ])
+        dept_templates = templates.get(
+            department.lower(),
+            [
+                (
+                    "Work Update",
+                    f"Hi,\n\nSharing a quick update on current priorities.\n\nBest,\n{worker_name}",
+                ),
+            ],
+        )
 
         template = dept_templates[n % len(dept_templates)]
         return GeneratedEmail(subject=template[0], body=template[1])

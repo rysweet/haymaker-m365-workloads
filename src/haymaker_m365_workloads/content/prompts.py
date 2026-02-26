@@ -27,7 +27,9 @@ def build_email_prompt(
     Returns:
         Formatted prompt string
     """
-    base = f"Write a short internal business email from {worker_name} in the {department} department."
+    base = (
+        f"Write a short internal business email from {worker_name} in the {department} department."
+    )
 
     if directive:
         base += f"\n\nAdditional context: {directive}"
@@ -43,7 +45,9 @@ def build_email_prompt(
         topic = topics.get(department.lower(), "about a work-related topic")
         base += f"\nThe email should be {topic}."
 
-    base += "\n\nReturn ONLY the email content (subject line on first line, then body). No other text."
+    base += (
+        "\n\nReturn ONLY the email content (subject line on first line, then body). No other text."
+    )
     return base
 
 

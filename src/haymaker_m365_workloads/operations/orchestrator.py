@@ -9,7 +9,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime
 from pathlib import Path
-from typing import AsyncIterator, Callable, Any, TYPE_CHECKING
+from typing import AsyncIterator, Callable, TYPE_CHECKING
 
 from ..models.worker import WorkerIdentity
 
@@ -105,9 +105,7 @@ class ActivityOrchestrator:
             except asyncio.CancelledError:
                 pass
 
-    async def get_logs(
-        self, follow: bool = False, lines: int = 100
-    ) -> AsyncIterator[str]:
+    async def get_logs(self, follow: bool = False, lines: int = 100) -> AsyncIterator[str]:
         """Stream orchestrator logs."""
         for line in self._logs[-lines:]:
             yield line
@@ -185,7 +183,6 @@ class ActivityOrchestrator:
         a generic email activity.
         """
         subject = None
-        body = None
 
         if self._email_generator:
             try:
@@ -194,7 +191,6 @@ class ActivityOrchestrator:
                     worker_name=worker.display_name,
                 )
                 subject = generated.subject
-                body = generated.body
             except Exception as e:
                 self._log(f"Email generation failed for {worker.display_name}: {e}", "WARNING")
 
@@ -208,7 +204,7 @@ class ActivityOrchestrator:
 
         self._activity_count += 1
         if subject:
-            self._log(f"Email sent by {worker.display_name}: \"{subject}\"")
+            self._log(f'Email sent by {worker.display_name}: "{subject}"')
         else:
             self._log(f"Email sent by {worker.display_name}")
 
@@ -246,6 +242,7 @@ class ActivityOrchestrator:
     def _should_perform_activity(self, per_hour_rate: float) -> bool:
         """Determine if activity should be performed based on rate."""
         import random
+
         # Convert to probability per minute (since we run every minute)
         probability = per_hour_rate / 60
         return random.random() < probability
