@@ -1,3 +1,8 @@
+---
+layout: default
+title: AI Email Generation
+---
+
 # AI Email Generation
 
 The M365 Knowledge Worker workload supports AI-powered email content generation using the LLM abstraction layer from agent-haymaker.
